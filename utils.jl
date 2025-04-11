@@ -26,7 +26,7 @@ function plot_results(results; worst_case_results=nothing, index_start, index_st
 end
 
 function plot_parameters(parameters; worst_case_params=nothing, plots=OrderedDict(k => plot() for k in keys(prior_ranges)), kwargs...)
-    for k in keys(ranges)
+    for k in keys(prior_ranges)
         p = plots[k]
         histogram!(p, parameters[!, k], xlabel=k, label="", bins=range(prior_ranges[k]..., length=20), normalize=true; kwargs...)
         if !isnothing(worst_case_params)

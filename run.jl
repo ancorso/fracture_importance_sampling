@@ -35,3 +35,20 @@ all_results = hcat(results_0[1:end-1, :], results_1)
 all_weights = vcat(weights_0, weights_1)
 get_new_samples(all_parameters, all_results, all_max_lengths, all_weights; index_start=index_start_0, index_stop=index_stop_1, n_samples=100, plot_folder=output_path_1, q=0.7)
 get_cdf(all_max_lengths, all_weights; n_bootstrap=100, plot_folder=output_path_1)
+
+## Iteration 2
+filepath_2 = "data/GTF_data_201_300.xlsx"
+index_start_2 = 201
+index_stop_2 = 300
+output_path_2 = "outputs/iter2/"
+mkpath(output_path_2)
+parameters_2, results_2, max_lengths_2, weights_2 = load_samples(filepath_2, index_start=index_start_2, index_stop=index_stop_2, plot_folder=output_path_2, weights_file=output_path_1 * "new_samples.csv")
+
+all_parameters = vcat(all_parameters, parameters_2)
+all_max_lengths = vcat(all_max_lengths, max_lengths_2)
+all_results = hcat(all_results, results_2)
+all_weights = vcat(all_weights, weights_2)
+get_new_samples(all_parameters, all_results, all_max_lengths, all_weights; index_start=index_start_0, index_stop=index_stop_2, n_samples=100, plot_folder=output_path_2, q=0.7)
+get_cdf(all_max_lengths, all_weights; n_bootstrap=100, plot_folder=output_path_2)
+
+
