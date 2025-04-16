@@ -118,9 +118,9 @@ function get_cdf(max_lengths, weights; n_bootstrap=nothing, plot_folder=nothing)
         end
 
         if !isnothing(plot_folder)
-            p = plot(xlabel="Length", ylabel="CDF")
+            p = plot(xlabel="Length", ylabel="CDF", dpi=300)
             for i in 1:n_bootstrap
-                plot!(p, bootstrap_max_lengths_vec[i], bootstrap_cdf_vec_vec[i], alpha=0.2, label="", color=:black)
+                plot!(p, bootstrap_max_lengths_vec[i], bootstrap_cdf_vec_vec[i], alpha=0.02, label="", color=:black)
             end
             plot!(p, max_lengths, cdf_vec, label="", color=:red, linewidth=3)
             savefig(plot_folder * "bootstrap_cdf.png")
