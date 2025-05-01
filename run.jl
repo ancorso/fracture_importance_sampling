@@ -1,6 +1,6 @@
 using XLSX
 using DataFrames
-using Plots
+using Plots; default(fontfamily="Computer Modern", framestyle=:box, dpi=250)
 using DataStructures
 using ExpectationMaximization
 using Distributions
@@ -49,7 +49,7 @@ all_max_lengths = vcat(all_max_lengths, max_lengths_2)
 all_results = hcat(all_results, results_2)
 all_weights = vcat(all_weights, weights_2)
 get_new_samples(all_parameters, all_results, all_max_lengths, all_weights; index_start=index_start_0, index_stop=index_stop_2, n_samples=100, plot_folder=output_path_2, q=0.7)
-get_cdf(all_max_lengths, all_weights; n_bootstrap=100, plot_folder=output_path_2)
+get_cdf(all_max_lengths, all_weights; n_bootstrap=100, plot_folder=output_path_2, x_threshold=40.0)
 
 
 ## Iteration 3
@@ -65,7 +65,7 @@ all_max_lengths = vcat(all_max_lengths, max_lengths_3)
 all_results = hcat(all_results, results_3)
 all_weights = vcat(all_weights, weights_3)
 get_new_samples(all_parameters, all_results, all_max_lengths, all_weights; index_start=index_start_0, index_stop=index_stop_3, n_samples=100, plot_folder=output_path_3, q=0.7)
-get_cdf(all_max_lengths, all_weights; n_bootstrap=1000, plot_folder=output_path_3)
+get_cdf(all_max_lengths, all_weights; n_bootstrap=1000, plot_folder=output_path_3, x_threshold=40.0)
 
 
 w = all_weights[1:385]
@@ -76,10 +76,6 @@ mu_hat = mean(w .* x)
 
 # Variance numerator: weighted squared deviations
 var_num = mean((w .* x .- mu_hat).^2)
-
-# Variance denominator correction term (accounts for effective sample size)
-var_den = 1 - sum(w_norm .^ 2)
-
 # Standard deviation of the mean
 std_err = sqrt(var_num)
 

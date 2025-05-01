@@ -95,18 +95,18 @@ function bootstrap_cdf(max_lengths, weights)
 
     sorted_indices = sortperm(bootstrap_max_lengths, rev=true)
     bootstrap_max_lengths = bootstrap_max_lengths[sorted_indices]
-    bootstrap_weights = bootstrap_weights[sorted_indices] ./ sum(bootstrap_weights)
+    bootstrap_weights = bootstrap_weights[sorted_indices] ./ length(bootstrap_weights)
 
     bootstrap_cdf_vec = 1 .- cumsum(bootstrap_weights)
     return bootstrap_max_lengths, bootstrap_cdf_vec
 end
 
 
-function get_cdf(max_lengths, weights; n_bootstrap=nothing, plot_folder=nothing)
+function get_cdf(max_lengths, weights; n_bootstrap=nothing, plot_folder=nothing, x_threshold=nothing)
     sorted_indices = sortperm(max_lengths, rev=true)
     max_lengths = max_lengths[sorted_indices]
     weights = weights[sorted_indices]
-    cdf_vec = 1 .- cumsum(weights ./ sum(weights))
+    cdf_vec = 1 .- cumsum(weights ./ length(weights))
 
     if !isnothing(n_bootstrap)
         bootstrap_max_lengths_vec = []
@@ -126,11 +126,29 @@ function get_cdf(max_lengths, weights; n_bootstrap=nothing, plot_folder=nothing)
             savefig(plot_folder * "bootstrap_cdf.png")
         end
 
+        if !isnothing(x_threshold) && !isnothing(plot_folder)
+            cdf_estimate_x_threshold_mean = 1 - cdf_vec[maximum(findall(max_lengths .> x_threshold))]
+            cdf_estimate_x_threshold_vec = []
+            for i in 1:n_bootstrap
+                push!(cdf_estimate_x_threshold_vec, 1 - bootstrap_cdf_vec_vec[i][maximum(findall(bootstrap_max_lengths_vec[i] .> x_threshold))])
+            end
+
+            q025 = quantile(cdf_estimate_x_threshold_vec, 0.025)
+            q975 = quantile(cdf_estimate_x_threshold_vec, 0.975)
+
+            @info "Probability of length > $x_threshold m: $cdf_estimate_x_threshold_mean (95% CI: $q025 - $q975)"
+
+            histogram(cdf_estimate_x_threshold_vec, bins=100, normalize=:pdf, color=:black, alpha=0.2, label="Uncertainty", xlabel="Probability of length > $x_threshold m", ylabel="PDF")
+            vline!([cdf_estimate_x_threshold_mean], color=:red, linewidth=3, label="Probability of length > $x_threshold m")
+            vline!([q025, q975], color=:blue, linewidth=2, linestyle=:dash, label="95% CI")
+            savefig(plot_folder * "bootstrap_cdf_x_threshold.png")
+        end
+
         return max_lengths, cdf_vec, bootstrap_max_lengths_vec, bootstrap_cdf_vec_vec
     end
 
     if !isnothing(plot_folder)
-        plot(max_lengths, cdf_vec, label="", color=:red, linewidth=3, xlabel="Length", ylabel="CDF")
+        plot(max_lengths, cdf_vec, label="", color=:red, linewidth=3, xlabel="Length", ylabel="CDF", ylims=(0.8, 1.0))
         savefig(plot_folder * "bootstrap_cdf.png")
     end
 
